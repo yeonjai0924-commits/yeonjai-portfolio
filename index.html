@@ -1230,23 +1230,24 @@ gStatement.textContent = p.statement || '';
   const v = document.createElement('video');
   v.src = safe(item.src);
 
-  // ✅ autoplay 안정 세팅 (대부분 브라우저는 muted여야 autoplay 허용)
   v.playsInline = true;
   v.preload = 'metadata';
 
-  // controls는 기본 유지
-  v.controls = true;
+  // ✅ 여기! 자동재생인 애들은 controls 끄기 (바 안 보임)
+  v.controls = !item.playOnOpen;
 
   // ✅ "자동재생 대상"이면 muted로 시작 + autoplay 시도
   if(item.playOnOpen){
-    v.muted = true;       // 핵심
-    v.autoplay = true;    // 힌트(실제 재생은 아래에서 play()로)
-    v.loop = true;        // 원하면(싫으면 지워)
+    v.muted = true;
+    v.autoplay = true;
+    v.loop = true; // 필요 없으면 삭제 가능
+    v.controlsList = 'nodownload noplaybackrate noremoteplayback';
+v.disablePictureInPicture = true;
+v.setAttribute('disablePictureInPicture','');
+
   }
 
-  // 클릭하면: 다른 영상 멈추고, 이 영상 재생/일시정지 토글(옵션)
   v.addEventListener('click', () => {
-    // 다른 비디오들 pause
     mediaGrid.querySelectorAll('video').forEach(other => {
       if(other !== v) other.pause();
     });
@@ -1258,6 +1259,7 @@ gStatement.textContent = p.statement || '';
   v.addEventListener('dblclick', () => toggleFullscreen(v));
   inner.appendChild(v);
 }
+
 
 
     card.appendChild(inner);
