@@ -1,0 +1,1373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Yeonjai Song — Portfolio</title>
+
+<style>
+:root{
+  --bg:#000000;
+  --fg:#f5f5f5;
+  --muted:rgba(255,255,255,.70);
+  --line:rgba(245,245,245,.14);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Helvetica, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--fg);
+  overflow:hidden; /* 기본은 숨김 유지 */
+}
+
+/* ===== FRAME ===== */
+.frame{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:20;
+}
+.frame .nav,
+.frame .nav a,
+.frame .nav button{ pointer-events:auto; }
+
+.frame .row{
+  position:absolute;
+  left:28px; right:28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  font-size:12px;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+  color:var(--muted);
+  pointer-events:auto;
+}
+.frame .row > :not(.nav){ pointer-events:none; }
+.frame .top{ top:20px; }
+.frame .bottom{ bottom:20px; }
+
+/* ✅ CURRENTLY block (shows only when body.open) */
+.currently{
+  position:absolute;
+  top:20px;     /* frame top row랑 같은 높이 */
+  left:28px;    /* row left랑 같은 여백 */
+  width:min(260px, 40vw);
+  color:rgba(255,255,255,.85);
+  font-size:11px;
+  line-height:1.35;
+  letter-spacing:.02em;
+  text-transform:none;
+
+  opacity:0;
+  transform:translateY(-6px);
+  transition:opacity .6s var(--ease), transform .6s var(--ease);
+  pointer-events:none; /* 클릭 방해 안 하게 */
+}
+
+.currently{ top:30px; }
+
+
+/* 펼쳐졌을 때만 보이게 */
+body.open .currently{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.currentlyTitle{
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.75);
+  margin-bottom:6px;
+}
+
+.currentlyLines > div{
+  margin:2px 0;
+}
+
+
+.frame .nav{
+  position:relative;
+  display:flex;
+  gap:22px;
+  align-items:center;
+  pointer-events:auto;
+}
+
+.contactBtn{
+  color:var(--muted);
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:transparent;
+  cursor:pointer;
+  font:inherit;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+.contactBtn:hover{ color:var(--fg); border-color:rgba(255,255,255,.28); }
+.contactBtn:focus{ outline:2px solid rgba(255,255,255,.35); outline-offset:2px; }
+
+/* CONTACT dropdown */
+.contactPanel{
+  position:absolute;
+  top:42px;
+  right:0;
+  width:min(360px, 60vw);
+  padding:14px 16px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.20);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius:12px;
+  box-shadow: 0 18px 48px rgba(0,0,0,.40);
+  color:rgba(255,255,255,.92);
+  text-transform:none;
+  letter-spacing:0;
+  display:none;
+  transform:translateY(-6px);
+  opacity:0;
+  transition:opacity .22s var(--ease), transform .22s var(--ease);
+  pointer-events:auto;
+}
+.contactPanel.open{
+  display:block;
+  opacity:1;
+  transform:translateY(0);
+}
+.contactPanel .line{
+  font-size:18px;
+  line-height:1.35;
+  font-weight:500;
+}
+.contactPanel a{
+  color:rgba(255,255,255,.92);
+  text-decoration:none;
+}
+.contactPanel a:hover{ text-decoration:underline; }
+
+/* ===== HERO ===== */
+.stage{
+  height:100%;
+  display:grid;
+  place-items:center;
+  padding:90px 28px 120px;
+  position:relative;
+  z-index:15;
+  pointer-events:auto;
+}
+body.open .stage{ pointer-events:none; }
+
+.hero{ text-align:center; user-select:none; }
+.hero h1{
+  margin:0;
+  font-weight:400;
+  letter-spacing:-.01em;
+  line-height:.92;
+  font-size:clamp(56px,7.6vw,140px);
+  cursor:pointer;
+  transition:transform .9s var(--ease), opacity .9s var(--ease);
+}
+body.open .hero h1{
+  transform:translateY(-6vh);
+  opacity:.15;
+}
+.hero h1:focus{ outline:none; }
+.hero .hint{ display:none; }
+
+/* ===== DECOR LINE ===== */
+.galleryWrap{
+  position:fixed;
+  left:0; right:0;
+  bottom:0;
+  height:56vh;
+  padding:0 28px 28px;
+  pointer-events:none;
+  z-index:8;
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
+}
+body.open .galleryWrap{
+  opacity:1;
+  transform:translateY(0);
+}
+.galleryTopLine{
+  height:1px;
+  background:var(--line);
+  margin:0 0 18px;
+  opacity:.9;
+}
+.galleryFooter{ display:none; }
+
+/* ===== CARDS ===== */
+.deck{
+  position:fixed;
+  inset:0;
+  z-index:10;
+  pointer-events:none;
+  touch-action:none;
+}
+body.open .deck{
+  pointer-events:auto;
+  cursor:grab;
+}
+body.open .deck:active{ cursor:grabbing; }
+
+.project{
+  position:fixed;
+  left:50%;
+  top:50%;
+  width:clamp(170px, 18vw, 260px);
+  transform:
+    translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px)))
+    rotate(var(--rot, 0deg))
+    scale(var(--s, 1));
+  opacity:1;
+  transition:transform 1.05s var(--ease), filter .8s var(--ease);
+  will-change:transform;
+  cursor:pointer;
+  pointer-events:none;
+  filter:drop-shadow(0 18px 40px rgba(0,0,0,.35));
+}
+body.open .project{ pointer-events:auto; }
+
+.project .thumb{
+  width:100%;
+  aspect-ratio:3/4;
+  background:#141416;
+  overflow:hidden;
+}
+.project img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transform:scale(1);
+  transition:transform .7s var(--ease), opacity .7s var(--ease);
+  opacity:.98;
+}
+body.open .project:hover img{ transform:scale(1.03); opacity:1; }
+
+.project .label{
+  margin-top:10px;
+  font-size:12px;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+  color:var(--fg);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  opacity:0;
+  transform:translateY(-6px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
+}
+.project .label .right{ color:var(--muted); }
+body.open .project .label{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ===== PROJECT GALLERY PAGE ===== */
+.galleryPage{
+  position:fixed;
+  inset:0;
+  z-index:60;
+  display:none;
+  background:rgba(0,0,0,.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  overflow:auto;               /* ✅ 갤러리 전체가 스크롤 컨테이너 */
+  -webkit-overflow-scrolling: touch;
+}
+
+
+.galleryPage.open{ display:block; }
+
+.galleryShell{
+  min-height:100vh;           /* ✅ 전체 높이만 잡고 */
+  display:flex;
+  flex-direction:column;
+  margin:0;
+  background:transparent;
+  border:none;
+  border-radius:0;
+
+  overflow:visible;           /* ✅ 막지 마 */
+}
+
+.galleryHeader{
+  flex:0 0 auto;                /* ✅ 헤더는 고정 */
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap:16px;
+  align-items:start;
+  padding:16px 18px 14px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+
+.galleryHeaderGrid{
+  max-width: 1100px;  /* 원하는 느낌에 맞게 980~1200 사이 조절 */
+  width:100%;
+
+  display:grid;
+  grid-template-columns: minmax(0, 1fr) 300px; /* desc + statement */
+  gap:22px;
+  align-items:start;
+}
+
+.galleryHeaderRight{
+  border-left:1px solid rgba(255,255,255,.10);
+  padding-left:18px;
+}
+
+.psTitle{
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+}
+.psBody{
+  margin:10px 0 0;
+  font-size:13px;
+  line-height:1.6;
+  color:rgba(255,255,255,.68);
+
+  /* ✅ 헤더 높이 폭발 방지 */
+  max-height: 9.6em;   /* 대충 6줄 정도 */
+  overflow:auto;
+  padding-right:6px;   /* 스크롤바 여백 */
+}
+
+/* 모바일에서는 아래로 내려가게 */
+@media (max-width: 860px){
+  .galleryHeaderGrid{ grid-template-columns: 1fr; }
+  .galleryHeaderRight{ border-left:none; padding-left:0; border-top:1px solid rgba(255,255,255,.10); padding-top:14px; }
+}
+.galleryHeaderLeft{ min-width:0; }
+.galleryTitle{
+  margin:0;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.80);
+}
+.galleryDesc{
+  margin:10px 0 0;
+  font-size:13px;
+  line-height:1.6;
+  color:rgba(255,255,255,.68);
+  max-width:74ch;
+}
+.galleryMeta{
+  margin-top:12px;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.45);
+}
+
+.galleryClose{
+  border:1px solid rgba(255,255,255,.14);
+  background:transparent;
+  color:var(--fg);
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:11px;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.galleryClose:hover{ background:rgba(255,255,255,.08); }
+
+.galleryBody{
+  flex:1 1 auto;
+  min-height:0;
+
+  overflow:visible;           /* ✅ 스크롤은 galleryPage가 함 */
+  padding:28px;
+}
+
+/* ===== MEDIA GRID (2-COL GRID) ===== */
+/* ===== TRUE MASONRY (GRID + JS) ===== */
+.mediaGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:18px;
+  align-items:start;
+
+  /* 핵심: row를 아주 촘촘하게 쪼개서 span으로 쌓을 것 */
+  grid-auto-rows: 8px;
+}
+
+.mediaCard{
+  margin:0;
+  width:100%;
+}
+
+/* hero/banner는 2칸 전체 */
+.mediaCard.hero,
+.mediaCard.banner{
+  grid-column: 1 / -1;
+}
+
+/* inner (기본 카드) */
+.mediaInner{
+  width:100%;
+  padding:10px;
+  background:#0b0b0c;
+}
+
+/* media 기본: 안 잘리게 */
+.mediaInner img,
+.mediaInner video{
+  width:100%;
+  height:auto;
+  display:block;
+  object-fit:contain;
+}
+
+/* banner: 좌우 전체 + 레터박스 */
+.mediaInner.banner{
+  padding:0;
+  aspect-ratio: 3 / 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#0b0b0c;
+}
+.mediaInner.banner img,
+.mediaInner.banner video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* hero: 제일 크게 */
+.mediaInner.hero{
+  padding:0;
+  aspect-ratio: 16 / 9;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#0b0b0c;
+}
+.mediaInner.hero img,
+.mediaInner.hero video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* caption (optional) */
+.mediaCap{
+  padding:10px 12px 12px;
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* mobile */
+@media (max-width: 860px){
+  .mediaGrid{ grid-template-columns: 1fr; }
+}
+
+/* ===== RESUME MODAL (ADD HERE) ===== */
+.resumePage{
+  position:fixed;
+  inset:0;
+  z-index:70;
+  display:none;
+  background:rgba(0,0,0,.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow:auto;
+}
+.resumePage.open{ display:block; }
+
+.resumeShell{
+  width:min(1200px, 92vw);
+  margin:90px auto 90px;
+  background:rgba(15,15,16,.92);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  overflow:hidden;
+  max-height: calc(100vh - 180px);
+}
+
+.resumeHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  padding:16px 18px 14px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.resumeTitle{
+  margin:0;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.80);
+}
+.resumeMeta{
+  margin:10px 0 0;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.45);
+}
+
+.resumeHeaderRight{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.resumeClose{
+  border:1px solid rgba(255,255,255,.14);
+  background:transparent;
+  color:var(--fg);
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:11px;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.resumeClose:hover{ background:rgba(255,255,255,.08); }
+
+.resumeDownload{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:var(--fg);
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:11px;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.resumeDownload:hover{ background:rgba(255,255,255,.10); }
+
+.resumeBody{ padding:18px; }
+
+.resumeGrid{
+  display:grid;
+  grid-template-columns: 1.4fr .6fr;
+  gap:18px;
+  align-items:start;
+}
+
+.resumePreview{
+  background:#0b0b0c;
+  padding:10px;
+
+  /* ✅ ADD: 이미지가 들어갈 '뷰포트' 높이 확보 */
+  height: calc(100vh - 180px - 64px - 36px);
+  /* 180px = 모달 margin 위/아래
+     64px 정도 = header 높이(대충)
+     36px 정도 = resumeBody padding 여유(대충)
+     -> 숫자는 필요하면 10~20px씩만 조절 */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.resumePreview img{
+  /* ✅ 핵심: 한 화면에 다 보이게 */
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  display:block;
+  object-fit: contain;
+}
+
+
+.resumeSideBox{
+  background:#0b0b0c;
+  border:1px solid rgba(255,255,255,.10);
+  padding:14px;
+}
+.resumeSideTitle{
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.70);
+}
+.resumeSideDesc{
+  margin:10px 0 12px;
+  font-size:13px;
+  line-height:1.6;
+  color:rgba(255,255,255,.68);
+}
+.resumeDownload.secondary{
+  display:inline-block;
+}
+
+@media (max-width: 860px){
+  .resumeGrid{ grid-template-columns: 1fr; }
+}
+
+/* ✅ resume 모달은 전체 화면에서 스크롤 가능 */
+.resumePage{
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ✅ 박스 높이를 화면에 맞추고 (안 잘리게) */
+.resumeShell{
+  max-height: calc(100vh - 180px); /* 위/아래 margin 90px씩 고려 */
+  display:flex;
+  flex-direction:column;
+  overflow:hidden; /* 헤더 고정 + 안쪽만 스크롤 */
+}
+
+/* ✅ 헤더는 그대로 위에 고정 */
+.resumeHeader{
+  flex:0 0 auto;
+}
+
+/* ✅ body 영역이 스크롤 컨테이너가 되게 */
+.resumeBody{
+  flex:1 1 auto;
+  overflow:auto;                 /* ✅ 여기서 스크롤 */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* (선택) 이미지 아래 여백 조금 */
+.resumePreview{ padding-bottom: 10px; }
+
+
+
+
+</style>
+</head>
+
+<body>
+
+<div class="frame">
+  <div class="row top">
+    <div>PORTFOLIO</div>
+
+       <!-- ✅ ADD: only shows when works are opened -->
+  <div class="currently" id="currentlyBlock" aria-hidden="true">
+    <div class="currentlyTitle">CURRENTLY@</div>
+    <div class="currentlyLines">
+      <div>Rhode Island School of Design: Graphic Design</div>
+      <div>Brown Political Review: Design Director | Data Visualizing</div>
+      <div>Brown Daily Herald: Social Media</div>
+    </div>
+  </div>
+
+    <div class="nav">
+      <button class="contactBtn" id="contactBtn" type="button">CONTACT</button>
+      <button class="contactBtn" id="resumeBtn" type="button">RESUME</button>
+
+      <div class="contactPanel" id="contactPanel" aria-hidden="true">
+        <div class="line">(334) 476 - 0583</div>
+        <div class="line">
+          <a href="mailto:yeonjai0924@gmail.com">yeonjai0924@gmail.com</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row bottom">
+    <div>YEONJAI SONG</div>
+    <div>GRAPHIC DESIGNER</div>
+    <div>©2026</div>
+  </div>
+</div>
+
+<main class="stage">
+  <section class="hero" aria-label="Hero">
+    <h1 id="heroTitle" role="button" tabindex="0">HELLO, I’M<br>YEONJAI SONG</h1>
+  </section>
+</main>
+
+<section class="deck" aria-label="Deck" id="deckArea">
+  <div id="deck"></div>
+</section>
+
+<section class="galleryWrap" aria-label="Works">
+  <div class="galleryTopLine"></div>
+</section>
+
+<!-- ===== PROJECT GALLERY PAGE ===== -->
+<div class="galleryPage" id="galleryPage" aria-hidden="true">
+  <div class="galleryShell" role="dialog" aria-modal="true">
+
+    <div class="galleryHeader">
+      <div class="galleryHeaderGrid">
+        <div class="galleryHeaderLeft">
+          <h2 class="galleryTitle" id="gTitle">PROJECT</h2>
+          <p class="galleryDesc" id="gDesc"></p>
+          <p class="galleryMeta" id="gMeta"></p>
+        </div>
+
+        <div class="galleryHeaderRight" id="gRight">
+          <div class="psTitle">Project Statement</div>
+          <p class="psBody" id="gStatement"></p>
+        </div>
+      </div>
+
+      <button class="galleryClose" id="gClose" type="button">Close</button>
+    </div>
+
+    <div class="galleryBody">
+      <div class="mediaGrid" id="mediaGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== RESUME PAGE ===== -->
+<div class="resumePage" id="resumePage" aria-hidden="true">
+  <div class="resumeShell" role="dialog" aria-modal="true">
+    <div class="resumeHeader">
+      <div class="resumeHeaderLeft">
+        <h2 class="resumeTitle">RESUME</h2>
+        <p class="resumeMeta">Updated 2026</p>
+      </div>
+      <div class="resumeHeaderRight">
+        <a class="resumeDownload" href="Yeonjai2025resume.pdf" download>
+          Download PDF
+        </a>
+        <button class="resumeClose" id="rClose" type="button">Close</button>
+      </div>
+    </div>
+
+    <div class="resumeBody">
+      <div class="resumeGrid">
+        <div class="resumePreview">
+          <img src="2025resume.jpg" alt="Yeonjai Song Resume Preview" loading="lazy">
+        </div>
+
+        <div class="resumeSide">
+          <div class="resumeSideBox">
+            <div class="resumeSideTitle">PDF</div>
+            <p class="resumeSideDesc">
+              If you prefer a clean copy, download the PDF version.
+            </p>
+            <a class="resumeDownload secondary" href="Yeonjai2025resume.pdf" download>
+              Download PDF
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const safe = (p) => encodeURI(p);
+
+/* CONTACT dropdown toggle */
+const contactBtn = document.getElementById('contactBtn');
+const contactPanel = document.getElementById('contactPanel');
+
+function closeContact(){
+  contactPanel.classList.remove('open');
+  contactPanel.setAttribute('aria-hidden','true');
+}
+function toggleContact(){
+  const isOpen = contactPanel.classList.contains('open');
+  if(isOpen) closeContact();
+  else{
+    contactPanel.classList.add('open');
+    contactPanel.setAttribute('aria-hidden','false');
+ 
+  }
+}
+
+
+
+contactBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  toggleContact();
+});
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('#contactPanel') && !e.target.closest('#contactBtn')){
+    closeContact();
+  }
+});
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeContact();
+});
+
+/* ===== RESUME modal (ADD HERE) ===== */
+const resumeBtn = document.getElementById('resumeBtn');
+const resumePage = document.getElementById('resumePage');
+const rClose = document.getElementById('rClose');
+
+function openResume(){
+  closeContact();
+  resumePage.classList.add('open');
+  resumePage.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+function closeResume(){
+  resumePage.classList.remove('open');
+  resumePage.setAttribute('aria-hidden','true');
+  document.body.style.overflow = 'hidden'; // 너 기본이 hidden이라 그대로
+}
+
+resumeBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const isOpen = resumePage.classList.contains('open');
+  if(isOpen) closeResume();
+  else openResume();
+});
+
+rClose.addEventListener('click', closeResume);
+
+resumePage.addEventListener('click', (e) => {
+  if(e.target === resumePage) closeResume();
+});
+
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && resumePage.classList.contains('open')) closeResume();
+});
+
+
+/* ===== YOUR PROJECTS (KEEP YOUR DATA) ===== */
+let projects = [
+  {
+    id: "p996",
+    title: "996 Project",
+    desc: "This project critiques the 996 working hour system and exposes how extreme overwork harms human health and well-being. Using a poster, printed cards, a QR-linked website, and a video, the project presents information, real cases, and visual experiences that reveal the destructive impact of this labor system and challenge work cultures that ignore human limits.",
+    statement: "Develop a campaign that informs, advocates, persuades, and engages audience around a critical issue",
+    thumb: "996/thumb.png",
+    captionDefault: "project from Design Studio 3 | December 2025 | Instructor: Hammett Nurosi",
+    items: [
+      { type:'image', src:'996/996cardmockup.png',   cap:'project from design studio 3', layout: 'hero' },
+      { type:'image', src:'996/996mockup.png',   cap:'project from design studio 3' },
+      { type:'video', src:'996/996phonescreenrecord.mp4',   cap:'project from design studio 3' },
+      { type:'image', src:'996/thumb.png',            cap:'project from design studio 3'},
+      { type:'image', src:'996/collage.png',         cap:'project from design studio 3' },
+      { type:'image', src:'996/996screenshots.png',     cap:'project from design studio 3' },
+      { type:'video', src:'996/996-video.mp4',     cap:'project from design studio 3' }
+    ]
+  },
+  {
+    id: "ptype3",
+    title: "Les Chants de Maldoror Book",
+    desc: "This project translates Shūji Terayama’s film Les Chants de Maldoror into a book format, treating the publication as an analytical extension of the film rather than a simple documentation. The Japanese text appearing in the film is translated and examined through typographic and visual analysis, allowing language, meaning, and imagery to unfold across the pages. The book adopts a layered design system inspired by the film’s fragmented and surreal visual style. Through overlapping text, images, and shifting hierarchies, the publication mirrors Terayama’s cinematic language while creating a space for close reading and interpretation. By reconfiguring a time-based film into a spatial reading experience, the book invites viewers to engage with the work more slowly and critically.",
+    statement: "Translate essay film into a small publication.",
+    thumb: "type3 book/type3bookthumb.png",
+    captionDefault: "project from Typography 3 | November 2025 | Instructor: Pouya Ahmadi",
+    items: [
+      { type:'video', src:'type3 book/type3thumbvideo.mp4', cap:'project from type 3', layout: 'hero', playOnOpen:true },
+      { type:'image', src:'type3 book/type3bookthumb.png', cap:'project from type 3' },
+      { type:'image', src:'type3 book/book2.png', cap:'project from type 3' },
+      { type:'image', src:'type3 book/book3.png', cap:'project from type 3' },
+      { type:'image', src:'type3 book/book4.png', cap:'project from type 3' },
+      { type:'image', src:'type3 book/book5.png', cap:'project from type 3' },
+      { type:'image', src:'type3 book/book6.png', cap:'project from type 3' },
+      { type:'video', src:'type3 book/My Movie 5.mov', cap:'project from type 3'}
+    ]
+  },
+  {
+    id: "pmonalisatype2",
+    title: "Mona Lisa Book",
+    desc: "This book focuses on the Mona Lisa as a single image reinterpreted by two artists from different eras: Leonardo da Vinci and Andy Warhol. By placing their works side by side, the book explores how the same image can change in meaning, technique, and visual language over time. The first half introduces Da Vinci and his original Mona Lisa, emphasizing craftsmanship, observation, and Renaissance ideals. The second half shifts to Warhol, examining his Pop Art approach and his transformation of the Mona Lisa through repetition and mass production. The book then moves into a visual comparison using their notes and sketches, allowing the reader to understand their thinking through process rather than analysis.",
+    statement: "Design a book for two different things. Two texts can either be about two specific people, or two specific places.",
+    thumb: "monalisatype2/monalisaphoto1.png",
+    captionDefault: "project from Typography 2 | May 2025 | Instructor: Laura Coombs",
+    items: [
+      { type:'video', src:'monalisatype2/monalisavideo.mp4',   cap:'project from type 2', layout:'hero', playOnOpen:true },
+      { type:'image', src:'monalisatype2/monalisaphoto1.png',  cap:'project from type 2' },
+      { type:'image', src:'monalisatype2/monalisaphoto12.png', cap:'project from type 2' },
+      { type:'image', src:'monalisatype2/monalisaphoto13.png', cap:'project from type 2' },
+      { type:'image', src:'monalisatype2/monalisaphoto14.png', cap:'project from type 2' },
+      { type:'image', src:'monalisatype2/monalisaphoto15.png', cap:'project from type 2' },
+      { type:'image', src:'monalisatype2/monalisaphoto16.png', cap:'project from type 2' },
+      { type:'image', src:'monalisatype2/monalisaphoto17.png', cap:'project from type 2' },
+      { type:'image', src:'monalisatype2/monalisaphoto18.png', cap:'project from type 2' }
+    ]
+  },
+  {
+    id: "phopeandanchor",
+    title: "Hope & Anchor",
+    desc: "Hope & Anchor is a fictional branding project for a flower shop located in Providence, Rhode Island. The project explores how a local brand can communicate calm, care, and continuity through visual language. Inspired by flowers as symbols of time, growth, and pause, the identity is designed to feel quiet, grounded, and intentional. The project includes the design and production of the brand logo, merchandise, website, and motion-based video content. Each element works as part of a cohesive system, extending the brand across physical and digital touchpoints. Through restrained typography, minimal compositions, and slow visual pacing, Hope & Anchor imagines a floral brand rooted in presence rather than spectacle.",
+    statement: "Make a local business named Hope & Anchor (inspired by the design of the Rhode Island state flag).",
+    thumb: "hopeandanchor/hopeandanchor-thumb.png",
+    captionDefault: "project from Color and Surface | May 2025 | Instructor: Emily Rye",
+    items: [
+  
+      { type:'video', src:'hopeandanchor/hopeandanchor-website.mp4', cap:'Hope & Anchor — Website', layout:'hero' , playOnOpen:true},
+      { type:'video', src:'hopeandanchor/hopeandanchor-video.mp4',   cap:'Hope & Anchor — Brand Film', layout:'hero' },
+      { type:'image', src:'hopeandanchor/Artboard 1.jpg', cap:'Hope & Anchor — Brand Guidelines', layout:'hero' }
+    ]
+  },
+  {
+    id: "pfutura",
+    title: "Futura Book",
+    desc: "This type specimen book examines Futura as a functional system built on geometry and structure. By focusing on scale, spacing, and layout rather than decoration, the project highlights how Futura’s clean forms create rhythm and clarity across compositions. The book demonstrates why Futura continues to operate as a contemporary typeface, translating early modernist principles into a flexible visual language.",
+    statement: "Research, write, and design a poster and type specimen based on a typeface of your choice, combining refined and deliberate typography with visual",
+    thumb: "futura book/futuracover.png",
+    captionDefault: "project from Typogrpahy 1 | December 2024 | Instructor: Minkyoung Kim",
+    items: [
+          { type:'video', src:'futura book/futuravideo.mp4',           cap:'project from type 1' , layout: 'hero', playOnOpen:true},
+      { type:'image', src:'futura book/futurabook2.png',          cap:'project from type 1' },
+      { type:'image', src:'futura book/futuracover.png',          cap:'project from type 1' },
+      { type:'image', src:'futura book/portfoliofuturapages.jpg', cap:'project from type 1' },
+      { type:'image', src:'futura book/futuraposter.png', cap:'project from type 1' },
+    ]
+  },
+  {
+    id: "pds1campaign",
+    title: "Food Campaign",
+    desc: "This project is a food-focused awareness campaign developed in collaboration with The Met, the on-campus dining hall. The campaign aims to increase visibility of culturally diverse foods while creating a space for students to actively share feedback and cultural knowledge. The system operates across both digital and physical platforms. Instagram posts introduce weekly menus and share recipes, while printed posters placed next to each dish provide contextual explanations. At the dining hall entrance, a large survey poster invites students to respond to the day’s menu, share food from their own culture, and contribute suggestions for future offerings. By designing multiple points of interaction, the campaign positions students as participants rather than passive viewers. The project uses design as a connective tool—linking food, feedback, and cultural exchange to foster ongoing dialogue within the dining space.",
+    statement: "Explore how graphic form can be shaped to effectively and powerfully deliver messages. Develop a campaign that engages an issue that feels strongly about, exploring audience, rhetoric, and connotation as develop the message.",
+    thumb: "ds1campaign/1thumb.png",
+    captionDefault: "project from design studio 1 | November 2024 | Instructor: Rene Pyne",
+    items: [
+      { type:'image', src:'ds1campaign/1thumb.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1campaign/2.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1campaign/3.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1campaign/4.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1campaign/campaignbumber.png', cap:'project from design studio 1', layout:'banner' },
+      { type:'image', src:'ds1campaign/insta1.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1campaign/insta2.PNG', cap:'project from design studio 1' },
+      { type:'image', src:'ds1campaign/insta3.PNG', cap:'project from design studio 1' },
+      { type:'image', src:'ds1campaign/insta4.png', cap:'project from design studio 1' }
+    ]
+  },
+  {
+    id: "pds1object",
+    title: "Object Project",
+    desc: "This object poster project centers on a wine glass without visually depicting it. Instead of showing the object directly, the poster is designed to evoke the form, weight, and atmosphere of a wine glass through carefully constructed visual cues. Before composing the final poster, key elements—including custom graphic components, typographic choices, and visual rhythms—were developed as a system. These elements were then assembled to suggest the presence of the wine glass through absence. As a final extension, the same visual language was translated into a GIF, allowing the object to emerge through motion and timing rather than representation.",
+    statement: "Explore the visual vocabulary of graphic design— color, shape, image treatment, typography, and composition—and start to familiarize yourself with some of the tools graphic designers use to generate and manipulate these forms.",
+    thumb: "ds1 object process final/1.png",
+    captionDefault: "project from design studio 1 | December 2024 | Instructor: Rene Pyne",
+    items: [
+      { 
+  type:'image',
+  src:'ds1 object process final/objectpostermockup.png',
+  cap:'project from design studio 1',
+  layout:'hero'
+},
+      { type:'image', src:'ds1 object process final/1.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1 object process final/2.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1 object process final/3.png', cap:'project from design studio 1' },
+      { type:'video', src:'ds1 object process final/4.mov', cap:'project from design studio 1', playOnOpen:true },
+      { type:'image', src:'ds1 object process final/5.png', cap:'project from design studio 1' },
+      { type:'image', src:'ds1 object process final/6.png', cap:'project from design studio 1' }
+    ]
+  },
+  {
+    id: "pcolorbook",
+    title: "Color in Real Life Book",
+    desc: "Color in Real Life is a book that invites viewers to re-see the world by introducing color into the often monochrome environments of everyday life. Through layered colors and geometric compositions, the project draws attention to the visual harmony and structure that quietly exist within our daily routines. Rather than transforming reality, the book reframes it—encouraging a renewed awareness of composition, balance, and beauty embedded in ordinary moments.",
+    statement: "Incorporate color research and pattern designs into a bound book, poster, three-dimensional object, screen-based piece, or deliverable of choice.",
+    thumb: "colorbook/colorbookcover.png",
+    captionDefault: "project from Color and Surface | March 2025 | Instructor: Nancy Skolos",
+    items: [
+      { type:'image', src:'colorbook/colorbookcover.png',  cap:'project from color 1' },
+      { type:'image', src:'colorbook/colorbook1.png',      cap:'project from color 1' },
+      { type:'image', src:'colorbook/colorbook1-2.png',    cap:'project from color 1' },
+      { type:'image', src:'colorbook/colorbook2.png',      cap:'project from color 1' },
+      { type:'image', src:'colorbook/colorbook3.png',      cap:'project from color 1' },
+      { type:'image', src:'colorbook/color book3-2.png',   cap:'project from color 1' },
+      { type:'video', src:'colorbook/colorbookvideo.mp4',  cap:'project from color 1' },
+    ]
+  },
+  {
+    id: "pfineart",
+    title: "Fine Art",
+    desc: "Alongside my graphic design work, I maintain a fine art practice that includes oil painting and charcoal drawing. These works function as a space for observation, material exploration, and visual sensitivity beyond structured design systems. Through drawing and painting, I focus on form, light, texture, and composition at a fundamental level. This process informs my graphic design practice by strengthening my sense of balance, hierarchy, and spatial awareness. Rather than existing separately, these works support how I approach typography, layout, and visual rhythm in my design projects.",
+    thumb: "fineart/fineart2.jpg",
+    captionDefault: "fine art",
+    items: [
+      { type:'image', src:'fineart/fineart2.jpg', cap:'fine art' },
+      { type:'image', src:'fineart/fineart3.jpg', cap:'fine art' },
+      { type:'image', src:'fineart/fineart4.jpg', cap:'fine art' },
+      { type:'image', src:'fineart/fineart5.png', cap:'fine art' },
+      { type:'image', src:'fineart/fineart6.jpg', cap:'fine art' }
+    ]
+  }
+];
+
+/* ✅ FORCE ORDER */
+const ORDER = [
+  "p996",
+  "ptype3",
+  "pmonalisatype2",
+  "phopeandanchor",
+  "pfutura",
+  "pds1campaign",
+  "pds1object",
+  "pcolorbook",
+  "pfineart"
+];
+projects = projects.slice().sort((a,b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+
+/* build cards */
+const deck = document.getElementById('deck');
+deck.innerHTML = '';
+projects.forEach((p) => {
+  const el = document.createElement('div');
+  el.className = 'project';
+  el.dataset.pid = p.id;
+
+  el.innerHTML = `
+    <div class="thumb">
+      <img src="${safe(p.thumb)}" alt="${p.title} thumbnail">
+    </div>
+    <div class="label">
+      <div>${p.title}</div>
+      <div class="right">Open</div>
+    </div>
+  `;
+
+  el.addEventListener('click', () => {
+    if(!document.body.classList.contains('open')){
+      toggleOpen(true);
+      return;
+    }
+    openGallery(p.id);
+  });
+
+  deck.appendChild(el);
+});
+
+/* layout */
+let cardEls = [];
+let panX = 0;
+
+function cacheCards(){ cardEls = Array.from(document.querySelectorAll('.project')); }
+function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+function layoutCards(){
+  if(!cardEls.length) cacheCards();
+
+  const n = cardEls.length;
+  const mid = (n - 1) / 2;
+
+  const w = cardEls[0]?.getBoundingClientRect().width || 220;
+  const gap = Math.round(Math.min(26, Math.max(14, w * 0.10)));
+
+  const stackBaseX = 40;
+  const stackBaseY = -10;
+  const stackStepX = 18;
+  const stackStepY = -7;
+
+  const openY = Math.round(window.innerHeight * 0.22);
+  const rowTotal = (n - 1) * (w + gap);
+  const startX = -rowTotal / 2;
+
+  const pad = Math.round(w * 1.2);
+  const minPan = -(rowTotal/2) - pad;
+  const maxPan = +(rowTotal/2) + pad;
+  panX = clamp(panX, minPan, maxPan);
+
+  const isOpen = document.body.classList.contains('open');
+
+  cardEls.forEach((el, i) => {
+    if(!isOpen){
+      const layer = i - mid;
+      el.style.setProperty('--tx', `${stackBaseX + layer * stackStepX}px`);
+      el.style.setProperty('--ty', `${stackBaseY + layer * stackStepY}px`);
+      el.style.setProperty('--rot', `${layer * 2.2}deg`);
+      el.style.setProperty('--s', `1`);
+    }else{
+      el.style.setProperty('--tx', `${startX + i * (w + gap) + panX}px`);
+      el.style.setProperty('--ty', `${openY}px`);
+      el.style.setProperty('--rot', `0deg`);
+      el.style.setProperty('--s', `1`);
+    }
+  });
+}
+
+/* open/close */
+function toggleOpen(forceOpen=null){
+  const next = (forceOpen === null) ? !document.body.classList.contains('open') : forceOpen;
+  document.body.classList.toggle('open', next);
+  if(next) panX = 0;
+  requestAnimationFrame(layoutCards);
+}
+
+const heroTitle = document.getElementById('heroTitle');
+heroTitle.addEventListener('click', () => toggleOpen());
+heroTitle.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleOpen(); }
+});
+
+/* wheel pan */
+window.addEventListener('wheel', (e) => {
+  if(!document.body.classList.contains('open')) return;
+
+  const galleryOpen = document.getElementById('galleryPage').classList.contains('open');
+
+  // ✅ 갤러리 열려있고, 스크롤 타겟이 갤러리 내부면: deck pan 막지 말고 그냥 스크롤 통과
+  if(galleryOpen && e.target.closest('.galleryBody')) return;
+
+  // ✅ 갤러리 열려있으면 deck pan 자체를 아예 하지 않음
+  if(galleryOpen) return;
+
+  const delta = (Math.abs(e.deltaY) > Math.abs(e.deltaX)) ? e.deltaY : e.deltaX;
+  if(delta){
+    e.preventDefault();
+    panX -= delta;
+    requestAnimationFrame(layoutCards);
+  }
+}, { passive:false });
+
+
+/* drag */
+const deckArea = document.getElementById('deckArea');
+let dragging = false;
+let dragged = false;
+let startX = 0;
+let lastX = 0;
+
+deckArea.addEventListener('pointerdown', (e) => {
+  if(!document.body.classList.contains('open')) return;
+  if(document.getElementById('galleryPage').classList.contains('open')) return;
+  if (e.target.closest('.project')) return;
+
+  dragging = true;
+  dragged = false;
+  startX = lastX = e.clientX;
+  deckArea.setPointerCapture?.(e.pointerId);
+});
+deckArea.addEventListener('pointermove', (e) => {
+  if(!dragging) return;
+
+  const dx = e.clientX - lastX;
+  lastX = e.clientX;
+
+  if (!dragged && Math.abs(e.clientX - startX) > 4) dragged = true;
+
+  if (dragged){
+    panX += dx;
+    requestAnimationFrame(layoutCards);
+  }
+});
+deckArea.addEventListener('pointerup', () => {
+  dragging = false;
+  dragged = false;
+});
+deckArea.addEventListener('pointercancel', () => {
+  dragging = false;
+  dragged = false;
+});
+
+/* ===== gallery open/close + render all media ===== */
+const galleryPage = document.getElementById('galleryPage');
+const mediaGrid = document.getElementById('mediaGrid');
+const gTitle = document.getElementById('gTitle');
+const gDesc = document.getElementById('gDesc');
+const gMeta = document.getElementById('gMeta');
+const gClose = document.getElementById('gClose');
+
+function toggleFullscreen(el){
+  if(!document.fullscreenElement) el.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+function openGallery(projectId){
+  const p = projects.find(x => x.id === projectId) || projects[0];
+
+  gTitle.textContent = (p.title || 'PROJECT').toUpperCase();
+  gDesc.textContent = p.desc || '';
+  gMeta.textContent = (p.captionDefault || '').toUpperCase();
+
+  const gStatement = document.getElementById('gStatement');
+gStatement.textContent = p.statement || '';
+
+
+  mediaGrid.innerHTML = '';
+
+  (p.items || []).forEach((item) => {
+    const card = document.createElement('div');
+    card.className = 'mediaCard';
+
+    const inner = document.createElement('div');
+    inner.className = 'mediaInner';
+
+    // ✅ layout 클래스 부여 (CSS가 grid-column, aspect-ratio 적용)
+    if(item.layout === 'banner'){
+      card.classList.add('banner');
+      inner.classList.add('banner');
+    }
+    if(item.layout === 'hero'){
+      card.classList.add('hero');
+      inner.classList.add('hero');
+    }
+
+    if(item.type === 'image'){
+      const img = document.createElement('img');
+      img.src = safe(item.src);
+      img.alt = item.cap || '';
+      img.loading = 'lazy';
+      img.addEventListener('click', () => toggleFullscreen(img));
+      inner.appendChild(img);
+    }else{
+  const v = document.createElement('video');
+  v.src = safe(item.src);
+
+  // ✅ autoplay 안정 세팅 (대부분 브라우저는 muted여야 autoplay 허용)
+  v.playsInline = true;
+  v.preload = 'metadata';
+
+  // controls는 기본 유지
+  v.controls = true;
+
+  // ✅ "자동재생 대상"이면 muted로 시작 + autoplay 시도
+  if(item.playOnOpen){
+    v.muted = true;       // 핵심
+    v.autoplay = true;    // 힌트(실제 재생은 아래에서 play()로)
+    v.loop = true;        // 원하면(싫으면 지워)
+  }
+
+  // 클릭하면: 다른 영상 멈추고, 이 영상 재생/일시정지 토글(옵션)
+  v.addEventListener('click', () => {
+    // 다른 비디오들 pause
+    mediaGrid.querySelectorAll('video').forEach(other => {
+      if(other !== v) other.pause();
+    });
+
+    if(v.paused) v.play().catch(()=>{});
+    else v.pause();
+  });
+
+  v.addEventListener('dblclick', () => toggleFullscreen(v));
+  inner.appendChild(v);
+}
+
+
+    card.appendChild(inner);
+
+    // (원하면 캡션도 붙일 수 있음)
+    // if(item.cap){
+    //   const cap = document.createElement('div');
+    //   cap.className = 'mediaCap';
+    //   cap.textContent = item.cap;
+    //   card.appendChild(cap);
+    // }
+
+    mediaGrid.appendChild(card);
+  });
+
+  galleryPage.classList.add('open');
+  galleryPage.setAttribute('aria-hidden','false');
+
+  const galleryBody = document.querySelector('.galleryBody');
+if(galleryBody) galleryBody.scrollTop = 0;
+
+  // 갤러리 열릴 때 body 스크롤은 막고, 갤러리 자체는 overflow:auto라 스크롤 됨
+  document.body.style.overflow = 'hidden';
+  /* ✅ 여기부터 추가 */
+  requestAnimationFrame(() => {
+  const autoV = mediaGrid.querySelector('video[autoplay]');
+  if(autoV){
+    autoV.play().catch(()=>{ /* autoplay blocked면 그냥 무시 */ });
+  }
+});
+requestAnimationFrame(() => {
+  applyMasonry();
+
+  // ✅ 두 번 더 (레이아웃/폰트/비디오 메타가 늦게 잡히는 경우 대비)
+  setTimeout(applyMasonry, 60);
+  setTimeout(applyMasonry, 220);
+
+  mediaGrid.querySelectorAll('img').forEach(img => {
+    if(img.complete) return;
+    img.addEventListener('load', applyMasonry, { once:true });
+  });
+
+  mediaGrid.querySelectorAll('video').forEach(v => {
+    if(v.readyState >= 1) return;
+    v.addEventListener('loadedmetadata', applyMasonry, { once:true });
+  });
+});
+
+// ✅ 갤러리 열릴 때 스크롤이 아래로 시작하는 버그 방지
+galleryPage.scrollTop = 0;               // 1차
+document.documentElement.scrollTop = 0;  // (일부 브라우저 safeguard)
+document.body.scrollTop = 0;
+
+requestAnimationFrame(() => {
+  galleryPage.scrollTop = 0;             // 2차 (paint 이후)
+  setTimeout(() => { galleryPage.scrollTop = 0; }, 50);  // 3차 (이미지/폰트 로딩 후)
+});
+
+setTimeout(() => { galleryPage.scrollTop = 0; }, 0);
+
+}
+
+// 이미지/비디오 로딩 후 masonry 계산
+function applyMasonry(){
+  const grid = document.getElementById('mediaGrid');
+  if(!grid) return;
+
+  const rowHeight = parseFloat(getComputedStyle(grid).getPropertyValue('grid-auto-rows')) || 8;
+  const rowGap = parseFloat(getComputedStyle(grid).getPropertyValue('row-gap')) || 18;
+
+  Array.from(grid.children).forEach(card => {
+    // display:none / 아직 렌더 전이면 height가 0일 수 있음
+    const inner = card.querySelector('.mediaInner') || card;
+    const h = inner.getBoundingClientRect().height;
+
+    if(!h || h < 5) return; // 0이면 일단 스킵하고 다음 로드 이벤트에서 다시
+    const span = Math.ceil((h + rowGap) / (rowHeight + rowGap));
+    card.style.gridRowEnd = `span ${span}`;
+  });
+}
+
+function closeGallery(){
+  galleryPage.classList.remove('open');
+  galleryPage.setAttribute('aria-hidden','true');
+  mediaGrid.querySelectorAll('video').forEach(v => {
+  v.pause();
+  v.currentTime = 0;
+});
+  mediaGrid.innerHTML = '';
+  galleryPage.scrollTop = 0;
+  document.body.style.overflow = 'hidden'; // 기본 유지
+}
+
+gClose.addEventListener('click', closeGallery);
+galleryPage.addEventListener('click', (e) => {
+  if(e.target === galleryPage) closeGallery();
+});
+window.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && galleryPage.classList.contains('open')) closeGallery();
+});
+
+/* init */
+cacheCards();
+requestAnimationFrame(layoutCards);
+window.addEventListener('resize', () => requestAnimationFrame(layoutCards));
+window.addEventListener('resize', () => {
+  requestAnimationFrame(applyMasonry);
+});
+
+</script>
+
+</body>
+</html>
