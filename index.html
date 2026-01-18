@@ -980,19 +980,34 @@ let projects = [
   },
   {
     id: "pcolorbook",
-    title: "Color in Real Life Book",
-    desc: "Color in Real Life is a book that invites viewers to re-see the world by introducing color into the often monochrome environments of everyday life. Through layered colors and geometric compositions, the project draws attention to the visual harmony and structure that quietly exist within our daily routines. Rather than transforming reality, the book reframes it—encouraging a renewed awareness of composition, balance, and beauty embedded in ordinary moments.",
-    statement: "Incorporate color research and pattern designs into a bound book, poster, three-dimensional object, screen-based piece, or deliverable of choice.",
-    thumb: "colorbook/colorbookcover.png",
-    captionDefault: "project from Color and Surface | March 2025 | Instructor: Nancy Skolos",
+    title: "Midnight Snack Book",
+    desc: "Midnight Snacks naturally blend into our daily lives, and the feelings, emotions, and situations that come with enjoying them leave a more memorable and special impression compared to regular meals. Midnight snacking often happens unexpectedly, without prior planning, making it even more impactful.",
+    statement: "Create a vivid print magazine for an entity or subject of your choice.",
+    thumb: "colorbook/midnightsnack.png",
+    captionDefault: "project from Typography 2 | March 2025 | Instructor: Laura Coombs",
     items: [
-      { type:'image', src:'colorbook/colorbookcover.png',  cap:'project from color 1' },
-      { type:'image', src:'colorbook/colorbook1.png',      cap:'project from color 1' },
-      { type:'image', src:'colorbook/colorbook1-2.png',    cap:'project from color 1' },
-      { type:'image', src:'colorbook/colorbook2.png',      cap:'project from color 1' },
-      { type:'image', src:'colorbook/colorbook3.png',      cap:'project from color 1' },
-      { type:'image', src:'colorbook/color book3-2.png',   cap:'project from color 1' },
-      { type:'video', src:'colorbook/colorbookvideo.mp4',  cap:'project from color 1' },
+      { type:'image', src:'colorbook/midnightsnack.png',  cap:'project from color 1', layout: 'hero' },
+      { type:'image', src:'colorbook/midnightsnackfinalmockup.png',      cap:'project from color 1' , layout: 'hero'},
+      { type:'video', src:'colorbook/midnightsnackvideo.mp4',    cap:'project from color 1', layout: 'hero'},
+    ]
+  },
+  {
+    id: "parchive",
+    title: "Archive",
+    desc: "Additional selected works.",
+    thumb: "archive/colorpattern.png",
+    captionDefault: "Archive",
+    items: [
+      { type:'image', src:'archive/colorpattern.png', cap:'Archive', layout: 'hero' },
+      { type:'image', src:'archive/neatfinal.png', cap:'Archive' },
+      { type:'image', src:'archive/neatsprocess.png', cap:'Archive' },
+      { type:'image', src:'archive/colorbookcover.png', cap:'Archive' },
+      { type:'image', src:'archive/colorbook1.png', cap:'Archive' },
+      { type:'image', src:'archive/colorbook1-2.png', cap:'Archive' },
+      { type:'image', src:'archive/colorbook2.png', cap:'Archive' },
+      { type:'image', src:'archive/colorbook3.png', cap:'Archive' },
+      { type:'image', src:'archive/color book3-2.png', cap:'Archive' },
+      { type:'video', src:'archive/colorbookvideo.mp4', cap:'Archive', playOnOpen: true }
     ]
   },
   {
@@ -1015,12 +1030,13 @@ let projects = [
 const ORDER = [
   "p996",
   "ptype3",
-  "pmonalisatype2",
   "phopeandanchor",
+  "pmonalisatype2",
+  "pcolorbook",
+  "pds1object",
   "pfutura",
   "pds1campaign",
-  "pds1object",
-  "pcolorbook",
+  "parchive",
   "pfineart"
 ];
 projects = projects.slice().sort((a,b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
