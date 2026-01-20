@@ -24,6 +24,7 @@ body{
   overflow:hidden; 
 }
 
+.mediaInner{ position:relative; }
 
 .frame{
   position:fixed;
@@ -424,6 +425,7 @@ body.open .project .label{
 
 
 .mediaInner{
+  position:relative;
   width:100%;
   padding:10px;
   background:#0b0b0c;
@@ -1243,33 +1245,44 @@ gStatement.textContent = p.statement || '';
   v.playsInline = true;
   v.preload = 'metadata';
 
-
+  
   v.controls = !item.playOnOpen;
-
 
   if(item.playOnOpen){
     v.muted = true;
     v.autoplay = true;
-    v.loop = true; 
+    v.loop = true;
     v.controlsList = 'nodownload noplaybackrate noremoteplayback';
-v.disablePictureInPicture = true;
-v.setAttribute('disablePictureInPicture','');
-
+    v.disablePictureInPicture = true;
+    v.setAttribute('disablePictureInPicture','');
   }
 
-  v.addEventListener('click', () => {
+  function pauseOthers(current){
     mediaGrid.querySelectorAll('video').forEach(other => {
-      if(other !== v) other.pause();
+      if(other !== current) other.pause();
     });
+  }
 
-    if(v.paused) v.play().catch(()=>{});
-    else v.pause();
-  });
+  function togglePlay(video){
+    pauseOthers(video);
+    if(video.paused) video.play().catch(()=>{});
+    else video.pause();
+  }
+
+  
+  const overlay = document.createElement('div');
+  overlay.style.position = 'absolute';
+  overlay.style.inset = '0';
+  overlay.style.cursor = 'pointer';
+  overlay.style.background = 'transparent';
+  overlay.style.clipPath = 'inset(0 0 70px 0)';
+  overlay.addEventListener('click', () => togglePlay(v));
+  inner.appendChild(overlay);
 
   v.addEventListener('dblclick', () => toggleFullscreen(v));
+
   inner.appendChild(v);
 }
-
 
 
     card.appendChild(inner);
