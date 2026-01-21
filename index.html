@@ -12,6 +12,8 @@
   --muted:rgba(255,255,255,.70);
   --line:rgba(245,245,245,.14);
   --ease:cubic-bezier(.2,.8,.2,1);
+  --thumbH: clamp(260px, 44vh, 520px);
+  --cardW: clamp(260px, 26vw, 420px);
 }
 
 *{box-sizing:border-box}
@@ -229,7 +231,7 @@ body.open .deck:active{ cursor:grabbing; }
   position:fixed;
   left:50%;
   top:50%;
-  width:clamp(170px, 18vw, 260px);
+  width: var(--cardW);     /* ✅ 고정 폭(반응형) */
   transform:
     translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px)))
     rotate(var(--rot, 0deg))
@@ -241,23 +243,26 @@ body.open .deck:active{ cursor:grabbing; }
   pointer-events:none;
   filter:drop-shadow(0 18px 40px rgba(0,0,0,.35));
 }
-body.open .project{ pointer-events:auto; }
+body.open .project{ pointer-events:auto; }  /* ✅ 이건 그대로 유지 */
 
 .project .thumb{
   width:100%;
-  aspect-ratio:3/4;
-  background:#141416;
-  overflow:hidden;
+  height: var(--thumbH);
+  background: transparent;   /* ✅ 박스색 제거 */
+  overflow:hidden;           /* ✅ crop될 때 깔끔하게 */
+  border-radius:0;           /* 필요하면 12px 이런식으로 */
 }
+
 .project img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:cover;          /* ✅ 길이/크기 완전 일정 */
   display:block;
   transform:scale(1);
   transition:transform .7s var(--ease), opacity .7s var(--ease);
   opacity:.98;
 }
+
 body.open .project:hover img{ transform:scale(1.03); opacity:1; }
 
 .project .label{
@@ -1078,9 +1083,11 @@ function layoutCards(){
 
   const n = cardEls.length;
   const mid = (n - 1) / 2;
+  const isOpen = document.body.classList.contains('open');
 
-  const w = cardEls[0]?.getBoundingClientRect().width || 220;
-  const gap = Math.round(Math.min(26, Math.max(14, w * 0.10)));
+  const widths = cardEls.map(el => el.getBoundingClientRect().width || 220);
+  const avgW = widths.reduce((a,b)=>a+b,0) / Math.max(1, widths.length);
+  const gap = Math.round(Math.min(26, Math.max(14, avgW * 0.10)));
 
   const stackBaseX = 40;
   const stackBaseY = -10;
@@ -1088,15 +1095,16 @@ function layoutCards(){
   const stackStepY = -7;
 
   const openY = Math.round(window.innerHeight * 0.22);
-  const rowTotal = (n - 1) * (w + gap);
+
+  const rowTotal = widths.reduce((s,w)=>s+w,0) + gap * (n - 1);
   const startX = -rowTotal / 2;
 
-  const pad = Math.round(w * 1.2);
+  const pad = Math.round(avgW * 1.2);
   const minPan = -(rowTotal/2) - pad;
   const maxPan = +(rowTotal/2) + pad;
   panX = clamp(panX, minPan, maxPan);
 
-  const isOpen = document.body.classList.contains('open');
+  let x = startX;
 
   cardEls.forEach((el, i) => {
     if(!isOpen){
@@ -1106,13 +1114,15 @@ function layoutCards(){
       el.style.setProperty('--rot', `${layer * 2.2}deg`);
       el.style.setProperty('--s', `1`);
     }else{
-      el.style.setProperty('--tx', `${startX + i * (w + gap) + panX}px`);
+      el.style.setProperty('--tx', `${x + panX}px`);
       el.style.setProperty('--ty', `${openY}px`);
       el.style.setProperty('--rot', `0deg`);
       el.style.setProperty('--s', `1`);
+      x += widths[i] + gap;
     }
   });
 }
+
 
 
 function toggleOpen(forceOpen=null){
