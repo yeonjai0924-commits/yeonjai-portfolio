@@ -658,6 +658,28 @@ body.open .project .label{
 
 
 .resumePreview{ padding-bottom: 10px; }
+.openHint{
+  position:fixed;
+  left:50%;
+  bottom:230px;
+  transform:translateX(-50%);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+  user-select:none;
+  pointer-events:none;
+  opacity:.9;
+  transition:opacity .6s var(--ease), transform .6s var(--ease);
+  z-index:14; 
+}
+
+
+body.open .openHint{
+  opacity:0;
+  transform:translateX(-50%) translateY(6px);
+}
+
 
 
 
@@ -704,6 +726,7 @@ body.open .project .label{
 <main class="stage">
   <section class="hero" aria-label="Hero">
     <h1 id="heroTitle" role="button" tabindex="0">HELLO, I’M<br>YEONJAI SONG</h1>
+    <div class="openHint" aria-hidden="true">click here to open</div>
   </section>
 </main>
 
